@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ theme }}-mode">
+
+<div id="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Animated Background -->
+<div class="bg-shape bg1"></div>
+<div class="bg-shape bg2"></div>
+
+<div class="container">
+
+    <!-- ================= TOP BAR ================= -->
+    <div class="top-bar">
+        <h1 class="logo">Personal Finance Tracker</h1>
+
+        <div class="user-controls">
+            <span>Hello, {{ current_user.username }}</span>
+            <a href="{{ url_for('profile') }}" class="profile-btn">Profile</a>
+            <button id="theme-toggle">🌙</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <!-- ================= STATS ================= -->
+    <div class="stats">
+
+        <div class="glass-card" style="margin-bottom:20px;">
+            <form method="GET">
+                <label>Select Month:</label>
+                <input type="month" name="month" value="{{ selected_month }}">
+                <button type="submit" class="primary-btn">Filter</button>
+            </form>
+        </div>
+
+        <div class="glass-card">
+            <h3>Income</h3>
+            <p>₹{{ total_income }}</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Expense</h3>
+            <p>₹{{ total_expense }}</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Balance</h3>
+            <p>₹{{ balance }}</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Transactions</h3>
+            <p>{{ transaction_count }}</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Top Category</h3>
+            <p>{{ top_category }}</p>
+        </div>
+
+    </div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main-content">
+
+        <!-- Transactions -->
+        <div class="transactions glass-card">
+
+    <!-- HEADER -->
+            <div class="transactions-header" onclick="toggleTransactions()">
+                <h2>Transactions</h2>
+                <span id="dropdown-icon">▼</span>
+            </div>
+
+            <!-- DROPDOWN LIST -->
+            <div id="transactions-list" class="transactions-list">
+
+                {% for t in transactions %}
+                <div class="transaction-item">
+
+                    <!-- LEFT -->
+                    <div class="transaction-info">
+                        <strong>{{ t.category }}</strong> -
+                        ₹{{ t.amount }}
+                        ({{ t.type }}) -
+                        {{ t.date.strftime('%d %b %Y') }}
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="action-buttons">
+
+                        <button type="button"
+                                class="edit-btn"
+                                data-id="{{ t.id }}"
+                                data-category="{{ t.category }}"
+                                data-type="{{ t.type }}"
+                                data-amount="{{ t.amount }}"
+                                data-date="{{ t.date }}"
+                                data-description="{{ t.description | default('') }}"
+                                onclick="openEditModal(this)">
+                            ✏
+                        </button>
+
+                        <form method="POST"
+                            action="{{ url_for('delete_transaction', transaction_id=t.id) }}">
+
+                            <input type="hidden" name="month" value="{{ selected_month }}">
+                            <button type="submit" class="delete-btn">🗑</button>
+                        </form>
+
+                    </div>
+
+                </div>
+                {% else %}
+                <p class="no-data">No transactions for this month</p>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section glass-card">
+            <h2>Category-wise Expenses</h2>
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <div class="glass-card" style="margin-top:30px;">
+            <h2>AI Budget Suggestions</h2>
+
+            <ul>
+                {% for suggestion in ai_suggestions %}
+                <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="glass-card" style="margin-top:30px;">
+            <h2>📈 Next Month Forecast (ML)</h2>
+
+            {% if predicted_income %}
+                <p>Predicted Income: ₹{{ predicted_income }}</p>
+                <p>Predicted Expense: ₹{{ predicted_expense }}</p>
+                <p>Predicted Balance: ₹{{ predicted_balance }}</p>
+            {% else %}
+                <p>Not enough data to generate forecast.</p>
+            {% endif %}
+        </div>
+
+        <div class="glass-card chat-container">
+            <h2>Finance Chat Assistant 🤖</h2>
+
+            <div id="chat-box" class="chat-box"></div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask something...">
+
+                <button onclick="startVoice()" class="chat-mic-btn">🎤</button>
+
+                <button onclick="sendMessage()" class="chat-send-btn">Send</button>
+            </div>
+        </div>
+
+    </div> <!-- END main-content -->
+
+    <!-- ================= BOTTOM BUTTONS ================= -->
+    
+
+    <!-- Hidden Chart Data -->
+   <div id="chart-data"
+        data-labels='{{ labels | tojson }}'
+        data-values='{{ values | tojson }}'
+        data-total='{{ total_expense | tojson }}'>
+    </div>
+    
+
+</div> <!-- END container -->
+
+
+
+<!-- ================= ADD TRANSACTION MODAL ================= -->
+<div id="transactionModal" class="modal">
+    <div class="modal-content glass-card">
+
+        <span class="close-btn" onclick="closeModal()">✖</span>
+        <h2>Add Transaction</h2>
+
+        <form method="POST" action="{{ url_for('add_transaction') }}">
+
+        <input type="hidden" name="month" value="{{ selected_month }}">
+
+            <div class="form-group">
+                <input type="number" step="10" name="amount" required>
+                <label>Amount</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="category" required>
+                <label>Category</label>
+            </div>
+
+            <div class="form-group">
+                <select name="is_recurring">
+                    <option value="no">One Time</option>
+                    <option value="monthly">Monthly Recurring</option>
+                </select>
+                <label>Recurring Type</label>
+            </div>
+
+            <div class="form-group">
+                <select name="type" required>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                <label>Transaction Type</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="date" required>
+                <label>Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="description">
+                <label>Description</label>
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Save Transaction
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+
+
+<!-- ================= EDIT TRANSACTION MODAL ================= -->
+<div id="editTransactionModal" class="modal">
+    <div class="modal-content glass-card">
+
+        <span class="close-btn" onclick="closeModal()">✖</span>
+        <h2>Edit Transaction</h2>
+
+        <form method="POST" id="editForm">
+
+        <input type="hidden" name="month" value="{{ selected_month }}">
+
+            <div class="form-group">
+                <input type="number" step="10" name="amount" id="editAmount" required>
+                <label>Amount</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="category" id="editCategory" required>
+                <label>Category</label>
+            </div>
+
+
+            <div class="form-group">
+                <select name="type" id="editType" required>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                <label>Transaction Type</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" name="date" id="editDate" required>
+                <label>Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="description" id="editDescription">
+                <label>Description</label>
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Update Transaction
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+
+
+<!-- ================= SCRIPTS ================= -->
+<script>
+    const selectedMonth = "{{ selected_month }}";
+</script> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<!-- Floating Add Transaction Button -->
+<button class="fab" onclick="openModal()">
+    +
+</button>
+
+</body>
+</html>

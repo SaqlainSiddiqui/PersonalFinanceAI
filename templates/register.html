@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-card">
+
+        <h2>Create Account 🚀</h2>
+        {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-message">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+{% endwith %}
+        <p class="subtitle">Start tracking your finances smartly</p>
+
+        <form method="POST">
+
+            <div class="form-group">
+                <input type="text" name="username" required>
+                <label>Username</label>
+            </div>
+
+            <div class="form-group">
+                <input type="email" name="email" required>
+                <label>Email</label>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" id="password" required>
+                <label>Password</label>
+                <span class="toggle-password" onclick="togglePassword()">👁</span>
+            </div>
+
+            <!-- PASSWORD RULES -->
+            <div class="password-rules">
+                <p id="length">❌ At least 8 characters</p>
+                <p id="uppercase">❌ One uppercase letter</p>
+                <p id="number">❌ One number</p>
+                <p id="special">❌ One special character</p>
+            </div>
+            
+            <button type="submit" class="auth-btn">Register</button>
+
+        </form>
+
+        <p class="switch-text">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login</a>
+        </p>
+
+    </div>
+</div>
+
+<!-- Script MUST be here -->
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="bg-shape bg1"></div>
+<div class="bg-shape bg2"></div>
+
+<div class="container">
+
+    <div class="profile-card glass-card">
+        <h2>Profile Settings</h2>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+
+        <hr>
+
+        <h3>Change Password</h3>
+
+        <form method="POST">
+
+            <input type="password" name="current_password"
+                   placeholder="Current Password" required>
+
+            <input type="password" name="new_password"
+                   placeholder="New Password" required>
+
+            <input type="password" name="confirm_password"
+                   placeholder="Confirm New Password" required>
+
+            <button type="submit" class="primary-btn">
+                Update Password
+            </button>
+
+        </form>
+
+        <br>
+        <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

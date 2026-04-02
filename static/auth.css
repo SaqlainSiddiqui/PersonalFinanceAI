@@ -1,0 +1,210 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* ===== Animated Gradient Background ===== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    background: linear-gradient(-45deg, #007bff, #00c6ff, #4facfe, #43e97b);
+    background-size: 400% 400%;
+    animation: gradientMove 10s ease infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== Glassmorphism Card ===== */
+.auth-card {
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 40px;
+    width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    color: white;
+    text-align: center;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* ===== Floating Labels ===== */
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 8px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.form-group label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: rgba(255,255,255,0.7);
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.form-group input:focus,
+.form-group input:valid {
+    border-color: #ffffff;
+}
+
+.form-group input:focus + label,
+.form-group input:valid + label {
+    top: -10px;
+    left: 8px;
+    font-size: 12px;
+    background: rgba(0,0,0,0.3);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+/* ===== Button ===== */
+.auth-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: white;
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* ===== Switch text ===== */
+.switch-text {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.switch-text a {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* ===== Show Password Icon ===== */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ===== Fade Animation ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Floating Particles ===== */
+.particle {
+    position: absolute;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    from { transform: translateY(100vh); }
+    to { transform: translateY(-10vh); }
+}
+
+.flash-message {
+    background: rgba(255, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+#flash-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.flash {
+    min-width: 280px;
+    max-width: 400px;
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+
+    /* Animation */
+    opacity: 0;
+    transform: translateY(-30px);
+    animation: slideDownFade 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards;
+
+    /* Hover effect */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect */
+.flash:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation-play-state: paused;
+}
+
+/* Success */
+.flash.success {
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+}
+
+/* Error */
+.flash.error {
+    background: linear-gradient(135deg, #f44336, #c62828);
+}
+
+/* Slide in */
+@keyframes slideDownFade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade out */
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

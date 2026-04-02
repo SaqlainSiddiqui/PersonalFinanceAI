@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+<body>
+
+<div id="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="auth-container">
+    <div class="auth-card">
+    <h2>Welcome Back 👋</h2>
+
+    <form method="POST">
+
+        <div class="form-group">
+            <input type="text" name="username" required>
+            <label>Username</label>
+        </div>
+
+        <div class="form-group password-wrapper">
+            <input type="password" name="password" id="password" required>
+            <label>Password</label>
+            <span class="toggle-password" onclick="togglePassword()">👁</span>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="email" id="email" required>
+            <label>Email</label>
+        </div>
+
+        <button type="submit" class="auth-btn">Login</button>
+
+    </form>
+
+    <p class="switch-text">
+        Don't have an account?
+        <a href="{{ url_for('register') }}">Register</a>
+    </p>
+</div>
+
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+</div>
+
+</body>
+</html>
